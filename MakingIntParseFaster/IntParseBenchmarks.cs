@@ -50,7 +50,7 @@ namespace MakingIntParseFaster
         [Benchmark]
         public int FasterWhitespaces()
         {
-            return int.Parse("          -2147483648          ");
+            return FasterInt.Parse("          -2147483648          ");
         }
     }
 }
