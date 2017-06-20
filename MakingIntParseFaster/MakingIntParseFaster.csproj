@@ -158,7 +158,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
+    <Compile Include="FasterIntSigns.cs" />
     <Compile Include="FasterIntThreeLoops.cs" />
+    <Compile Include="IntParseSignsBenchmarks.cs" />
     <Compile Include="IntParseThreeLoopsBenchmarks.cs" />
     <Compile Include="IntParseBenchmarks.cs" />
     <Compile Include="FasterInt.cs" />
