@@ -164,6 +164,8 @@
     <Compile Include="IntParseThreeLoopsBenchmarks.cs" />
     <Compile Include="IntParseBenchmarks.cs" />
     <Compile Include="FasterInt.cs" />
+    <Compile Include="NumberV2.cs" />
+    <Compile Include="OriginInt.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
