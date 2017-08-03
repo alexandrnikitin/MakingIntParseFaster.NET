@@ -160,6 +160,7 @@
     <Compile Include="Config.cs" />
     <Compile Include="FasterIntSigns.cs" />
     <Compile Include="FasterIntThreeLoops.cs" />
+    <Compile Include="IntParseFasterBenchmarks.cs" />
     <Compile Include="OriginalIntParseBenchmarks.cs" />
     <Compile Include="IntParseSignsBenchmarks.cs" />
     <Compile Include="IntParseThreeLoopsBenchmarks.cs" />
@@ -169,6 +170,7 @@
     <Compile Include="OriginInt.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="V2\FasterInt.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
