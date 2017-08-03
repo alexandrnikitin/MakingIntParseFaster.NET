@@ -8,7 +8,7 @@ namespace MakingIntParseFaster
     {
         static void Main(string[] args)
         {
-            BenchmarkRunner.Run<IntParseBenchmarks>();
+            BenchmarkRunner.Run<OriginalIntParseBenchmarks>();
         }
     }
 }
