@@ -12,32 +12,22 @@ namespace MakingIntParseFaster
         private const Int32 Int32Precision = 10;
         private const Int32 UInt32Precision = Int32Precision;
 
-        internal unsafe static Int32 ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+        internal unsafe static Int32 ParseInt32(String s, NumberFormatInfo info)
         {
             Byte* numberBufferBytes = stackalloc Byte[NumberBuffer.NumberBufferBytes];
             NumberBuffer number = new NumberBuffer(numberBufferBytes);
             Int32 i = 0;
 
-            StringToNumber(s, style, ref number, info, false);
+            StringToNumber(s, ref number, info, false);
 
-            if ((style & NumberStyles.AllowHexSpecifier) != 0)
+            if (!NumberToInt32(ref number, ref i))
             {
-                if (!HexNumberToInt32(ref number, ref i))
-                {
-                    throw new OverflowException("SR.Overflow_Int32");
-                }
-            }
-            else
-            {
-                if (!NumberToInt32(ref number, ref i))
-                {
-                    throw new OverflowException("SR.Overflow_Int32");
-                }
+                throw new OverflowException("SR.Overflow_Int32");
             }
             return i;
         }
 
-        private unsafe static void StringToNumber(String str, NumberStyles options, ref NumberBuffer number, NumberFormatInfo info, Boolean parseDecimal)
+        private unsafe static void StringToNumber(String str, ref NumberBuffer number, NumberFormatInfo info, Boolean parseDecimal)
         {
             if (str == null)
             {
@@ -48,7 +38,7 @@ namespace MakingIntParseFaster
             fixed (char* stringPointer = str)
             {
                 char* p = stringPointer;
-                if (!ParseNumber(ref p, options, ref number, null, info, parseDecimal)
+                if (!ParseNumber(ref p, ref number, null, info, parseDecimal)
                     || (p - stringPointer < str.Length && !TrailingZeros(str, (int)(p - stringPointer))))
                 {
                     throw new FormatException("SR.Format_InvalidString");
@@ -70,7 +60,7 @@ namespace MakingIntParseFaster
         }
 
 
-        private unsafe static Boolean ParseNumber(ref char* str, NumberStyles options, ref NumberBuffer number, StringBuilder sb, NumberFormatInfo numfmt, Boolean parseDecimal)
+        private unsafe static Boolean ParseNumber(ref char* str, ref NumberBuffer number, StringBuilder sb, NumberFormatInfo numfmt, Boolean parseDecimal)
         {
             const Int32 StateSign = 0x0001;
             const Int32 StateParens = 0x0002;
@@ -81,26 +71,7 @@ namespace MakingIntParseFaster
 
             number.scale = 0;
             number.sign = false;
-            string decSep;                  // decimal separator from NumberFormatInfo.
-            string groupSep;                // group separator from NumberFormatInfo.
             string currSymbol = null;       // currency symbol from NumberFormatInfo.
-
-            Boolean parsingCurrency = false;
-            if ((options & NumberStyles.AllowCurrencySymbol) != 0)
-            {
-                currSymbol = numfmt.CurrencySymbol;
-
-                // The idea here is to match the currency separators and on failure match the number separators to keep the perf of VB's IsNumeric fast.
-                // The values of decSep are setup to use the correct relevant separator (currency in the if part and decimal in the else part).
-                decSep = numfmt.CurrencyDecimalSeparator;
-                groupSep = numfmt.CurrencyGroupSeparator;
-                parsingCurrency = true;
-            }
-            else
-            {
-                decSep = numfmt.NumberDecimalSeparator;
-                groupSep = numfmt.NumberGroupSeparator;
-            }
 
             Int32 state = 0;
             Boolean bigNumber = (sb != null); // When a StringBuilder is provided then we use it in place of the number.digits char[50]
@@ -114,17 +85,12 @@ namespace MakingIntParseFaster
             {
                 // Eat whitespace unless we've found a sign which isn't followed by a currency symbol.
                 // "-Kr 1231.47" is legal but "- 1231.47" is not.
-                if (!IsWhite(ch) || (options & NumberStyles.AllowLeadingWhite) == 0 || ((state & StateSign) != 0 && ((state & StateCurrency) == 0 && numfmt.NumberNegativePattern != 2)))
+                if (!IsWhite(ch) || ((state & StateSign) != 0 && ((state & StateCurrency) == 0 && numfmt.NumberNegativePattern != 2)))
                 {
-                    if ((((options & NumberStyles.AllowLeadingSign) != 0) && (state & StateSign) == 0) && ((next = MatchChars(p, numfmt.PositiveSign)) != null || ((next = MatchChars(p, numfmt.NegativeSign)) != null && (number.sign = true))))
+                    if (((state & StateSign) == 0) && ((next = MatchChars(p, numfmt.PositiveSign)) != null || ((next = MatchChars(p, numfmt.NegativeSign)) != null && (number.sign = true))))
                     {
                         state |= StateSign;
                         p = next - 1;
-                    }
-                    else if (ch == '(' && ((options & NumberStyles.AllowParentheses) != 0) && ((state & StateSign) == 0))
-                    {
-                        state |= StateSign | StateParens;
-                        number.sign = true;
                     }
                     else if (currSymbol != null && (next = MatchChars(p, currSymbol)) != null)
                     {
@@ -145,11 +111,11 @@ namespace MakingIntParseFaster
             Int32 digEnd = 0;
             while (true)
             {
-                if ((ch >= '0' && ch <= '9') || (((options & NumberStyles.AllowHexSpecifier) != 0) && ((ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F'))))
+                if ((ch >= '0' && ch <= '9'))
                 {
                     state |= StateDigits;
 
-                    if (ch != '0' || (state & StateNonZero) != 0 || (bigNumber && ((options & NumberStyles.AllowHexSpecifier) != 0)))
+                    if (ch != '0' || (state & StateNonZero) != 0)
                     {
                         if (digCount < maxParseDigits)
                         {
@@ -173,15 +139,6 @@ namespace MakingIntParseFaster
                         number.scale--;
                     }
                 }
-                else if (((options & NumberStyles.AllowDecimalPoint) != 0) && ((state & StateDecimal) == 0) && ((next = MatchChars(p, decSep)) != null || ((parsingCurrency) && (state & StateCurrency) == 0) && (next = MatchChars(p, numfmt.NumberDecimalSeparator)) != null))
-                {
-                    state |= StateDecimal;
-                    p = next - 1;
-                }
-                else if (((options & NumberStyles.AllowThousands) != 0) && ((state & StateDigits) != 0) && ((state & StateDecimal) == 0) && ((next = MatchChars(p, groupSep)) != null || ((parsingCurrency) && (state & StateCurrency) == 0) && (next = MatchChars(p, numfmt.NumberGroupSeparator)) != null))
-                {
-                    p = next - 1;
-                }
                 else
                 {
                     break;
@@ -189,7 +146,6 @@ namespace MakingIntParseFaster
                 ch = *++p;
             }
 
-            Boolean negExp = false;
             number.precision = digEnd;
             if (bigNumber)
                 sb.Append('\0');
@@ -197,52 +153,11 @@ namespace MakingIntParseFaster
                 number.digits[digEnd] = '\0';
             if ((state & StateDigits) != 0)
             {
-                if ((ch == 'E' || ch == 'e') && ((options & NumberStyles.AllowExponent) != 0))
-                {
-                    char* temp = p;
-                    ch = *++p;
-                    if ((next = MatchChars(p, numfmt.PositiveSign)) != null)
-                    {
-                        ch = *(p = next);
-                    }
-                    else if ((next = MatchChars(p, numfmt.NegativeSign)) != null)
-                    {
-                        ch = *(p = next);
-                        negExp = true;
-                    }
-                    if (ch >= '0' && ch <= '9')
-                    {
-                        Int32 exp = 0;
-                        do
-                        {
-                            exp = exp * 10 + (ch - '0');
-                            ch = *++p;
-                            if (exp > 1000)
-                            {
-                                exp = 9999;
-                                while (ch >= '0' && ch <= '9')
-                                {
-                                    ch = *++p;
-                                }
-                            }
-                        } while (ch >= '0' && ch <= '9');
-                        if (negExp)
-                        {
-                            exp = -exp;
-                        }
-                        number.scale += exp;
-                    }
-                    else
-                    {
-                        p = temp;
-                        ch = *p;
-                    }
-                }
                 while (true)
                 {
-                    if (!IsWhite(ch) || (options & NumberStyles.AllowTrailingWhite) == 0)
+                    if (!IsWhite(ch))
                     {
-                        if (((options & NumberStyles.AllowTrailingSign) != 0 && ((state & StateSign) == 0)) && ((next = MatchChars(p, numfmt.PositiveSign)) != null || (((next = MatchChars(p, numfmt.NegativeSign)) != null) && (number.sign = true))))
+                        if ((((state & StateSign) == 0)) && ((next = MatchChars(p, numfmt.PositiveSign)) != null || (((next = MatchChars(p, numfmt.NegativeSign)) != null) && (number.sign = true))))
                         {
                             state |= StateSign;
                             p = next - 1;

@@ -9,7 +9,7 @@ namespace MakingIntParseFaster
         [Pure]
         public static int Parse(String s)
         {
-            return NumberV2.ParseInt32(s, NumberStyles.Integer, NumberFormatInfo.CurrentInfo);
+            return NumberV2.ParseInt32(s, NumberFormatInfo.CurrentInfo);
         }
 
     }
