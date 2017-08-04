@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace MakingIntParseFaster.V2
 {
@@ -8,79 +9,113 @@ namespace MakingIntParseFaster.V2
     {
         public static int Parse(string str)
         {
+            if (str == null) throw new ArgumentNullException(nameof(String));
+
             return ParseInt32Fast(str, NumberFormatInfo.CurrentInfo);
         }
 
         internal unsafe static Int32 ParseInt32Fast(String s, NumberFormatInfo info)
         {
-            if (s == null)
-            {
-                throw new ArgumentNullException(nameof(String));
-            }
-
-            const int StateSign = 1 << 0;
-            const int StateNegative = 1 << 1;
-            const int StateDigits = 1 << 2;
-
-            var state = 0;
             var ret = 0;
             fixed (char* sptr = s)
             {
-                var len = s.Length * 2;
                 var cptr = sptr;
-                while (len > 0)
+                var c = *cptr;
+                if (!(c >= '0' && c <= '9'))
                 {
-                    len -= 2;
-                    var c = *cptr;
-                    if (c >= '0' && c <= '9' && (state & StateDigits) == 0)
+                    // TODO should throw!
+                    cptr = HandleNonNum(cptr, info);
+
+                }
+
+                // iterate over nums
+                while (true)
+                {
+                    c = *cptr;
+                    if (c >= '0' && c <= '9')
                     {
-                        state |= StateSign;
-                        ret = ret * 10 + (c - '0');
+                        ret = ret * 10 + c - '0';
+                        cptr++;
                     }
-                    else if ((state & StateSign) == 0 && MatchChars(cptr, info.PositiveSign) != null)
+                    else if (c == '\0')
                     {
-                        state |= StateSign;
-                    }
-                    else if ((state & StateSign) == 0 && MatchChars(cptr, info.NegativeSign) != null)
-                    {
-                        state |= StateSign | StateNegative;
-                    }
-                    // leading whitespaces
-                    else if (IsWhite(c) && (state & StateSign) == 0)
-                    {
-                    }
-                    // trailing whitespaces
-                    else if (IsWhite(c))
-                    {
-                        state |= StateDigits;
+                        break;
                     }
                     else
                     {
-                        throw new OverflowException("SR.Format_InvalidString");
+                        // check for trailing symbols
+                        HandleTrailing(cptr);
+                        break;
                     }
-
-                    cptr++;
-                }
-            }
-
-
-            if ((state & StateNegative) > 0)
-            {
-                ret = -ret;
-                if (ret > 0)
-                {
-                    throw new OverflowException("SR.Overflow_Int32");
-                }
-            }
-            else
-            {
-                if (ret < 0)
-                {
-                    throw new OverflowException("SR.Overflow_Int32");
                 }
             }
 
             return ret;
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static unsafe void HandleTrailing(char* cptr)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static Boolean TrailingZeros(String s, Int32 index)
+        {
+            // For compatibility, we need to allow trailing zeros at the end of a number string
+            for (int i = index; i < s.Length; i++)
+            {
+                if (s[i] != '\0')
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static unsafe char* HandleNonNum(char* cptr, NumberFormatInfo info)
+        {
+            // check current for white
+            if (IsWhite(*cptr))
+            {
+                cptr = SkipLeadingWhites(cptr);
+            }
+
+            // check current for sign
+            if (*cptr < '0')
+            {
+                cptr = HandleSign(cptr, info);
+            }
+
+            return cptr;
+        }
+
+        private static unsafe char* HandleSign(char* cptr, NumberFormatInfo info)
+        {
+            var matchChars = MatchChars(cptr, info.NegativeSign);
+            if (matchChars != null)
+            {
+                return matchChars;
+            }
+
+            matchChars = MatchChars(cptr, info.PositiveSign);
+            if (matchChars != null)
+            {
+                return matchChars;
+            }
+
+            return cptr;
+        }
+
+        private static unsafe char* SkipLeadingWhites(char* cptr)
+        {
+            while (IsWhite(*cptr))
+            {
+                cptr++;
+            }
+
+            return cptr;
         }
 
         private unsafe static char* MatchChars(char* p, string str)
