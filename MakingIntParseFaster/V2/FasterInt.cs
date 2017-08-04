@@ -9,13 +9,12 @@ namespace MakingIntParseFaster.V2
     {
         public static int Parse(string str)
         {
-            if (str == null) throw new ArgumentNullException(nameof(String));
-
             return ParseInt32Fast(str, NumberFormatInfo.CurrentInfo);
         }
 
         internal unsafe static Int32 ParseInt32Fast(String s, NumberFormatInfo info)
         {
+            if (s == null) throw new ArgumentNullException(nameof(String));
             var ret = 0;
             fixed (char* sptr = s)
             {
