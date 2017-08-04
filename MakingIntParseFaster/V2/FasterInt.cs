@@ -20,30 +20,29 @@ namespace MakingIntParseFaster.V2
             fixed (char* sptr = s)
             {
                 var cptr = sptr;
-                var c = *cptr;
-                if (!(c >= '0' && c <= '9'))
+
+                if (!((uint)(*cptr - '0') <= 9))
                 {
                     // TODO should throw!
                     cptr = HandleNonNum(cptr, info);
-
                 }
 
                 // iterate over nums
                 while (true)
                 {
-                    c = *cptr;
-                    if (c >= '0' && c <= '9')
+                    if ((uint)(*cptr - '0') <= 9)
                     {
-                        ret = ret * 10 + c - '0';
+                        ret = ret * 10 + (*cptr - '0');
                         cptr++;
                     }
-                    else if (c == '\0')
+                    else if (*cptr == '\0')
                     {
                         break;
                     }
                     else
                     {
                         // check for trailing symbols
+                        // TODO should throw!
                         HandleTrailing(cptr);
                         break;
                     }
