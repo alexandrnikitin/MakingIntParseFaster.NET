@@ -12,7 +12,7 @@ namespace MakingIntParseFaster.V4
             return ParseInt32Fast(str, NumberFormatInfo.CurrentInfo);
         }
 
-        internal unsafe static Int32 ParseInt32Fast(String s, NumberFormatInfo info)
+        internal static unsafe Int32 ParseInt32Fast(String s, NumberFormatInfo info)
         {
             if (s == null) throw new ArgumentNullException(nameof(String));
             var isNegative = false;
@@ -23,7 +23,7 @@ namespace MakingIntParseFaster.V4
 
                 if (!((uint)(*cptr - '0') <= 9))
                 {
-                    isNegative = HandleLeadingNaN(ref cptr, info);
+                    isNegative = HandleLeadingSymbols(ref cptr, info);
                 }
 
                 // iterate over nums
@@ -40,9 +40,9 @@ namespace MakingIntParseFaster.V4
                     }
                 }
 
-                if ((cptr - sptr < s.Length && !TrailingZeros(s, (int)(cptr - sptr))))
+                if (cptr - sptr < s.Length)
                 {
-                    throw new FormatException("SR.Format_InvalidString");
+                    HandleTrailingWhite(s, sptr, cptr);
                 }
             }
 
@@ -59,6 +59,7 @@ namespace MakingIntParseFaster.V4
             return ret;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private static Boolean TrailingZeros(String s, Int32 index)
         {
             // For compatibility, we need to allow trailing zeros at the end of a number string
@@ -74,7 +75,7 @@ namespace MakingIntParseFaster.V4
 
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static unsafe bool HandleLeadingNaN(ref char* cptr, NumberFormatInfo info)
+        private static unsafe bool HandleLeadingSymbols(ref char* cptr, NumberFormatInfo info)
         {
             var isNegative = false;
             char* next;
@@ -99,31 +100,22 @@ namespace MakingIntParseFaster.V4
             }
         }
 
-        private static unsafe char* HandleSign(char* cptr, NumberFormatInfo info)
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static unsafe void HandleTrailingWhite(string s, char* sptr, char* cptr)
         {
-            var matchChars = MatchChars(cptr, info.NegativeSign);
-            if (matchChars != null)
+            while (true)
             {
-                return matchChars;
-            }
+                if (!IsWhite(*cptr))
+                {
+                    if (TrailingZeros(s, (int) (cptr - sptr)))
+                    {
+                        return;
+                    }
 
-            matchChars = MatchChars(cptr, info.PositiveSign);
-            if (matchChars != null)
-            {
-                return matchChars;
-            }
-
-            return cptr;
-        }
-
-        private static unsafe char* SkipLeadingWhites(char* cptr)
-        {
-            while (IsWhite(*cptr))
-            {
+                    throw new FormatException("SR.Format_InvalidString");
+                }
                 cptr++;
             }
-
-            return cptr;
         }
 
         private unsafe static char* MatchChars(char* p, string str)

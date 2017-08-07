@@ -160,6 +160,7 @@
     <Compile Include="Config.cs" />
     <Compile Include="FasterIntSigns.cs" />
     <Compile Include="FasterIntThreeLoops.cs" />
+    <Compile Include="IntParseFasterV4Benchmarks.cs" />
     <Compile Include="IntParseFasterBenchmarks.cs" />
     <Compile Include="OriginalIntParseBenchmarks.cs" />
     <Compile Include="IntParseSignsBenchmarks.cs" />
