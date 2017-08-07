@@ -17,5 +17,17 @@ namespace MakingIntParseFaster
         {
             return V4.FasterInt.Parse("-21474");
         }
+
+        [Benchmark]
+        public int FiveDigitsV4a()
+        {
+            return V4a.FasterInt.Parse("21474");
+        }
+
+        [Benchmark]
+        public int NegativeFiveDigitsV4a()
+        {
+            return V4a.FasterInt.Parse("-21474");
+        }
     }
 }
