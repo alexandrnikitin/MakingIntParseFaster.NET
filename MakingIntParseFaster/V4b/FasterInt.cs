@@ -22,16 +22,12 @@ namespace MakingIntParseFaster.V4b
             {
                 var cptr = sptr;
 
-                while (cptr < sptr + s.Length)
-                {
-                    if ((uint)(*cptr - '0') <= 9 && ret >= 0)
-                    {
-                        ret = ret * 10 + (*cptr - '0');
-                        cptr++;
-                    }
-                }
-
                 handleNumber:
+                while ((uint)(*cptr - '0') <= 9 && ret >= 0)
+                {
+                    ret = ret * 10 + (*cptr - '0');
+                    cptr++;
+                }
 
                 if (cptr - sptr == s.Length)
                 {
