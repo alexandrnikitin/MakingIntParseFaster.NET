@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
-namespace MakingIntParseFaster.V4d
+namespace MakingIntParseFaster.V4e
 {
     public static class FasterInt
     {
@@ -23,10 +23,12 @@ namespace MakingIntParseFaster.V4d
                 var cptr = sptr;
 
                 handleNumber:
-                while ((uint)(*cptr - '0') <= 9 && ret >= 0)
+                var c = (uint)(*cptr - '0');
+                if (c <= 9 && ret >= 0)
                 {
-                    ret = ret * 10 + (*cptr - '0');
+                    ret = ret * 10 + (int)c;
                     cptr++;
+                    goto handleNumber;
                 }
 
                 if (cptr == sptr + s.Length)
