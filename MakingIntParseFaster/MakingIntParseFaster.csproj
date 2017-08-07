@@ -181,6 +181,7 @@
     <Compile Include="V4a\FasterInt.cs" />
     <Compile Include="V4c\FasterInt.cs" />
     <Compile Include="V4b\FasterInt.cs" />
+    <Compile Include="V4f\FasterInt.cs" />
     <Compile Include="V4e\FasterInt.cs" />
     <Compile Include="V4d\FasterInt.cs" />
     <Compile Include="V4\FasterInt.cs" />
