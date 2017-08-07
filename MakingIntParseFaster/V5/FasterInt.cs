@@ -93,7 +93,11 @@ namespace MakingIntParseFaster.V5
             {
                 if (!IsWhite(*cptr))
                 {
-                    if (((next = MatchChars(cptr, info.NegativeSign)) != null && (isNegative = true)) || (next = MatchChars(cptr, info.PositiveSign)) != null)
+                    if ((uint)(*cptr - '0') <= 9)
+                    {
+                        return false;
+                    }
+                    else if (((next = MatchChars(cptr, info.NegativeSign)) != null && (isNegative = true)) || (next = MatchChars(cptr, info.PositiveSign)) != null)
                     {
                         cptr = next;
                         return isNegative;
