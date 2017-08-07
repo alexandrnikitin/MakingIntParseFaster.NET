@@ -55,21 +55,21 @@ namespace MakingIntParseFaster
             return V2.FasterInt.Parse("2147483647");
         }
         [Benchmark]
-        public int OneDigitV3()
+        public int OneDigitV4()
         {
-            return V3.FasterInt.Parse("1");
+            return V4.FasterInt.Parse("1");
         }
 
         [Benchmark]
-        public int FiveDigitsV3()
+        public int FiveDigitsV4()
         {
-            return V3.FasterInt.Parse("21474");
+            return V4.FasterInt.Parse("21474");
         }
 
         [Benchmark]
-        public int MaxValueV3()
+        public int MaxValueV4()
         {
-            return V3.FasterInt.Parse("2147483647");
+            return V4.FasterInt.Parse("2147483647");
         }
 
         //[Benchmark]
