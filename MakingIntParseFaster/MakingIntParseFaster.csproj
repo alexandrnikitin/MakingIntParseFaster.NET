@@ -157,6 +157,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Benchmarks\VariousBenchmarks.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="FasterIntSigns.cs" />
     <Compile Include="FasterIntThreeLoops.cs" />
