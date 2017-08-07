@@ -21,6 +21,7 @@ namespace MakingIntParseFaster.V4f
             fixed (char* sptr = s)
             {
                 var cptr = sptr;
+                var eptr = sptr + s.Length;
 
                 handleNumber:
                 var c = (uint)(*cptr - '0');
@@ -30,8 +31,8 @@ namespace MakingIntParseFaster.V4f
                     cptr++;
                     goto handleNumber;
                 }
-
-                if (cptr == sptr + s.Length)
+                
+                if (cptr == eptr)
                 {
                 }
                 else if (cptr == sptr)
@@ -41,14 +42,17 @@ namespace MakingIntParseFaster.V4f
                     {
                         isNegative = true;
                         cptr = next;
-                        goto handleNumber;
                     }
-
-                    isNegative = HandleLeadingSymbols(ref cptr, info);
+                    else
+                    {
+                        isNegative = HandleLeadingSymbols(ref cptr, eptr, info);
+                    }
+                    
+                    goto handleNumber;
                 }
-                else if (cptr < sptr + s.Length)
+                else if (cptr < eptr)
                 {
-                    HandleTrailingWhite(s, sptr, cptr);
+                    HandleTrailingWhite(cptr, eptr);
                 }
             }
 
@@ -81,11 +85,11 @@ namespace MakingIntParseFaster.V4f
 
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static unsafe bool HandleLeadingSymbols(ref char* cptr, NumberFormatInfo info)
+        private static unsafe bool HandleLeadingSymbols(ref char* cptr, char* eptr, NumberFormatInfo info)
         {
             var isNegative = false;
             char* next;
-            while (true)
+            while (cptr < eptr)
             {
                 if (!IsWhite(*cptr))
                 {
@@ -99,24 +103,18 @@ namespace MakingIntParseFaster.V4f
                 }
                 cptr++;
             }
+
+            return false;
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static unsafe void HandleTrailingWhite(string s, char* sptr, char* cptr)
+        private static unsafe void HandleTrailingWhite(char* cptr, char* eptr)
         {
-            while (true)
-            {
-                if (!IsWhite(*cptr))
-                {
-                    if (TrailingZeros(s, (int) (cptr - sptr)))
-                    {
-                        return;
-                    }
+            while (cptr < eptr && IsWhite(*cptr)) { cptr++; }
+            // For compatibility, we need to allow trailing zeros at the end of a number string
+            while (cptr < eptr && *cptr == '\0'){ cptr++; }
 
-                    throw new FormatException("SR.Format_InvalidString");
-                }
-                cptr++;
-            }
+            if (cptr != eptr) throw new FormatException("SR.Format_InvalidString");
         }
 
         private unsafe static char* MatchChars(char* p, string str)
