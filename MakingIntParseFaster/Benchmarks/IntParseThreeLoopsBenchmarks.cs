@@ -1,7 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Attributes.Exporters;
 
-namespace MakingIntParseFaster
+namespace MakingIntParseFaster.Benchmarks
 {
     [Config(typeof(Config))]
     [MarkdownExporterAttribute.GitHub]

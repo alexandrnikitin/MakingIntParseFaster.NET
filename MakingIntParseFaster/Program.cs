@@ -1,6 +1,5 @@
-﻿using System;
-using System.Globalization;
-using BenchmarkDotNet.Running;
+﻿using BenchmarkDotNet.Running;
+using MakingIntParseFaster.Benchmarks;
 
 namespace MakingIntParseFaster
 {
@@ -8,7 +7,7 @@ namespace MakingIntParseFaster
     {
         static void Main(string[] args)
         {
-            BenchmarkRunner.Run<IntParseFasterBenchmarks>();
+            BenchmarkRunner.Run<IntParseFasterFullBenchmarks>();
         }
     }
 }

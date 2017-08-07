@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 
-namespace MakingIntParseFaster
+namespace MakingIntParseFaster.Benchmarks
 {
     [Config(typeof(Config))]
     public class OriginalIntParseBenchmarks

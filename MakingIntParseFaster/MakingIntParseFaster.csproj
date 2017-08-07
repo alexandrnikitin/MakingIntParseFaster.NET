@@ -162,14 +162,9 @@
     <Compile Include="Config.cs" />
     <Compile Include="FasterIntSigns.cs" />
     <Compile Include="FasterIntThreeLoops.cs" />
-    <Compile Include="IntParseFasterV1ABenchmarks.cs" />
-    <Compile Include="IntParseFasterFullBenchmarks.cs" />
-    <Compile Include="IntParseFasterV4Benchmarks.cs" />
-    <Compile Include="IntParseFasterBenchmarks.cs" />
-    <Compile Include="OriginalIntParseBenchmarks.cs" />
-    <Compile Include="IntParseSignsBenchmarks.cs" />
-    <Compile Include="IntParseThreeLoopsBenchmarks.cs" />
-    <Compile Include="IntParseBenchmarks.cs" />
+    <Compile Include="Benchmarks\IntParseFasterFullBenchmarks.cs" />
+    <Compile Include="Benchmarks\OriginalIntParseBenchmarks.cs" />
+    <Compile Include="Benchmarks\IntParseThreeLoopsBenchmarks.cs" />
     <Compile Include="FasterInt.cs" />
     <Compile Include="NumberV2.cs" />
     <Compile Include="OriginInt.cs" />
