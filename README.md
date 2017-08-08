@@ -21,17 +21,7 @@ Benchmark results:
  | NegativeFiveDigitsImproved |    RyuJitX64 |    RyuJit |      X64 |  30.69 ns | 0.0868 ns | 0.0725 ns |
  |   NegativeMaxValueImproved |    RyuJitX64 |    RyuJit |      X64 |  39.20 ns | 0.1538 ns | 0.1439 ns |
 
-Three loop version results:
-
- |            Method |     Mean |     Error |    StdDev |
- |------------------ |---------:|----------:|----------:|
- |    FasterOneDigit | 30.64 ns | 0.9426 ns | 0.2448 ns |
- |    FasterMaxValue | 35.97 ns | 0.4189 ns | 0.1088 ns |
- |        FasterSign | 45.19 ns | 2.0742 ns | 0.5388 ns |
- | FasterWhitespaces | 59.93 ns | 9.3043 ns | 2.4168 ns |
-
-
- Full:
+Full results with LegacyJitX64:
 
  ``` ini
 
@@ -90,3 +80,12 @@ Runtime=Clr
  |   NegativeOneDigitImproved |    RyuJitX64 |    RyuJit |      X64 |  27.05 ns | 0.1908 ns | 0.1784 ns |
  | NegativeFiveDigitsImproved |    RyuJitX64 |    RyuJit |      X64 |  30.69 ns | 0.0868 ns | 0.0725 ns |
  |   NegativeMaxValueImproved |    RyuJitX64 |    RyuJit |      X64 |  39.20 ns | 0.1538 ns | 0.1439 ns |
+
+Three loop version results:
+
+ |            Method |     Mean |     Error |    StdDev |
+ |------------------ |---------:|----------:|----------:|
+ |    FasterOneDigit | 30.64 ns | 0.9426 ns | 0.2448 ns |
+ |    FasterMaxValue | 35.97 ns | 0.4189 ns | 0.1088 ns |
+ |        FasterSign | 45.19 ns | 2.0742 ns | 0.5388 ns |
+ | FasterWhitespaces | 59.93 ns | 9.3043 ns | 2.4168 ns |
