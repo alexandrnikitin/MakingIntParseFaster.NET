@@ -1,9 +1,11 @@
 ﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Attributes.Exporters;
 using BenchmarkDotNet.Attributes.Jobs;
 
 namespace MakingIntParseFaster.Benchmarks
 {
     [RyuJitX64Job, LegacyJitX86Job, LegacyJitX64Job]
+    [MarkdownExporterAttribute.GitHub]
     public class IntParseFasterFullBenchmarks
     {
         [Benchmark]
@@ -49,43 +51,43 @@ namespace MakingIntParseFaster.Benchmarks
         }
 
         [Benchmark]
-        public int OneDigitV5()
+        public int OneDigitImproved()
         {
             return V5.FasterInt.Parse("1");
         }
 
         [Benchmark]
-        public int FiveDigitsV5()
+        public int FiveDigitsImproved()
         {
             return V5.FasterInt.Parse("21474");
         }
 
         [Benchmark]
-        public int MaxValueV5()
+        public int MaxValueImproved()
         {
             return V5.FasterInt.Parse("2147483647");
         }
 
         [Benchmark]
-        public int WhitespacesV5()
+        public int WhitespacesImproved()
         {
             return V5.FasterInt.Parse("          2147483647          ");
         }
 
         [Benchmark]
-        public int NegativeOneDigitV5()
+        public int NegativeOneDigitImproved()
         {
             return V5.FasterInt.Parse("-1");
         }
 
         [Benchmark]
-        public int NegativeFiveDigitsV5()
+        public int NegativeFiveDigitsImproved()
         {
             return V5.FasterInt.Parse("-21474");
         }
 
         [Benchmark]
-        public int NegativeMaxValueV5()
+        public int NegativeMaxValueImproved()
         {
             return V5.FasterInt.Parse("-2147483648");
         }
