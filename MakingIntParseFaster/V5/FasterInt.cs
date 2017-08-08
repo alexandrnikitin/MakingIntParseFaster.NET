@@ -69,20 +69,6 @@ namespace MakingIntParseFaster.V5
             return ret;
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        private static Boolean TrailingZeros(String s, Int32 index)
-        {
-            // For compatibility, we need to allow trailing zeros at the end of a number string
-            for (int i = index; i < s.Length; i++)
-            {
-                if (s[i] != '\0')
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static unsafe bool HandleLeadingSymbols(ref char* cptr, char* eptr, NumberFormatInfo info)
@@ -109,6 +95,36 @@ namespace MakingIntParseFaster.V5
             }
 
             return false;
+        }
+
+        
+        public static unsafe bool HandleLeadingSymbolsForBench(ref char* cptr, char* eptr, NumberFormatInfo info)
+        {
+            return HandleLeadingSymbols(ref cptr, eptr, info);
+        }
+
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static unsafe bool HandleLeadingSymbolsV2(ref char* cptr, char* eptr, NumberFormatInfo info)
+        {
+            while (cptr < eptr && IsWhite(*cptr)) { cptr++; }
+            if (cptr <= eptr)
+            {
+                if ((uint)(*cptr - '0') <= 9)
+                {
+                    return false;
+                }
+
+                var isNegative = false;
+                char* next;
+                if (((next = MatchChars(cptr, info.NegativeSign)) != null && (isNegative = true)) || (next = MatchChars(cptr, info.PositiveSign)) != null)
+                {
+                    cptr = next;
+                    return isNegative;
+                }
+            }
+
+            throw new FormatException("SR.Format_InvalidString");
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
